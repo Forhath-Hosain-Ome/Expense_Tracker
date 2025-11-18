@@ -1,10 +1,9 @@
 import { useState } from 'react'
 import api from '../api'
 
-export default function ExpenseForm({ onCreated }) {
+export default function IncomeForm({ onCreated }) {
   const [description, setDescription] = useState('')
   const [amount, setAmount] = useState('')
-  const [category, setCategory] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
@@ -13,11 +12,10 @@ export default function ExpenseForm({ onCreated }) {
     setLoading(true)
     setError(null)
     try {
-      const payload = { description, amount: parseFloat(amount), category: category || null }
-      const created = await api.createExpense(payload)
+      const payload = { description, amount: parseFloat(amount) }
+      const created = await api.createIncome(payload)
       setDescription('')
       setAmount('')
-      setCategory('')
       onCreated && onCreated(created)
     } catch (err) {
       setError(err.message)
@@ -36,11 +34,7 @@ export default function ExpenseForm({ onCreated }) {
         <label>Amount</label>
         <input value={amount} onChange={(e) => setAmount(e.target.value)} required type="number" step="0.01" />
       </div>
-      <div>
-        <label>Category (optional)</label>
-        <input value={category} onChange={(e) => setCategory(e.target.value)} />
-      </div>
-      <button type="submit" disabled={loading}>{loading ? 'Creating...' : 'Add Expense'}</button>
+      <button type="submit" disabled={loading}>{loading ? 'Creating...' : 'Add Income'}</button>
       {error && <div className="error">Error: {error}</div>}
     </form>
   )

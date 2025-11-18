@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import api from '../api'
 
-export default function ExpenseForm({ onCreated }) {
+export default function RecurringForm({ onCreated }) {
   const [description, setDescription] = useState('')
   const [amount, setAmount] = useState('')
-  const [category, setCategory] = useState('')
+  const [frequency, setFrequency] = useState('monthly')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
@@ -13,11 +13,11 @@ export default function ExpenseForm({ onCreated }) {
     setLoading(true)
     setError(null)
     try {
-      const payload = { description, amount: parseFloat(amount), category: category || null }
-      const created = await api.createExpense(payload)
+      const payload = { description, amount: parseFloat(amount), frequency }
+      const created = await api.createRecurring(payload)
       setDescription('')
       setAmount('')
-      setCategory('')
+      setFrequency('monthly')
       onCreated && onCreated(created)
     } catch (err) {
       setError(err.message)
@@ -37,10 +37,15 @@ export default function ExpenseForm({ onCreated }) {
         <input value={amount} onChange={(e) => setAmount(e.target.value)} required type="number" step="0.01" />
       </div>
       <div>
-        <label>Category (optional)</label>
-        <input value={category} onChange={(e) => setCategory(e.target.value)} />
+        <label>Frequency</label>
+        <select value={frequency} onChange={(e) => setFrequency(e.target.value)}>
+          <option>daily</option>
+          <option>weekly</option>
+          <option>monthly</option>
+          <option>yearly</option>
+        </select>
       </div>
-      <button type="submit" disabled={loading}>{loading ? 'Creating...' : 'Add Expense'}</button>
+      <button type="submit" disabled={loading}>{loading ? 'Creating...' : 'Add Recurring'}</button>
       {error && <div className="error">Error: {error}</div>}
     </form>
   )

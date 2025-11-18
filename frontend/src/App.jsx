@@ -1,9 +1,26 @@
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import './App.css'
-import BudgetList from './components/BudgetList'
-import BudgetForm from './components/BudgetForm'
+import Nav from './components/Nav'
+
+// Income
+import IncomeList from './components/IncomeList'
+import IncomeForm from './components/IncomeForm'
+
+// Expense
 import ExpenseList from './components/ExpenseList'
 import ExpenseForm from './components/ExpenseForm'
+
+// Transfer
+import TransferList from './components/TransferList'
+import TransferForm from './components/TransferForm'
+
+// Budget
+import BudgetList from './components/BudgetList'
+import BudgetForm from './components/BudgetForm'
+
+// Recurring
+import RecurringList from './components/RecurringList'
+import RecurringForm from './components/RecurringForm'
 
 function App() {
   return (
@@ -11,21 +28,18 @@ function App() {
       <div className="app-shell">
         <header>
           <h1>Expense Tracker</h1>
-          <nav>
-            <Link to="/">Budgets</Link> | <Link to="/expenses">Expenses</Link>
-          </nav>
         </header>
+
+        <Nav />
 
         <main>
           <Routes>
-            <Route path="/" element={<>
-              <BudgetForm />
-              <BudgetList />
-            </>} />
-            <Route path="/expenses" element={<>
-              <ExpenseForm />
-              <ExpenseList />
-            </>} />
+            <Route path="/incomes" element={<><IncomeForm /><IncomeList /></>} />
+            <Route path="/expenses" element={<><ExpenseForm /><ExpenseList /></>} />
+            <Route path="/transfers" element={<><TransferForm /><TransferList /></>} />
+            <Route path="/budgets" element={<><BudgetForm /><BudgetList /></>} />
+            <Route path="/recurring" element={<><RecurringForm /><RecurringList /></>} />
+            <Route path="/" element={<h2>Welcome! Select a section from the menu.</h2>} />
           </Routes>
         </main>
       </div>

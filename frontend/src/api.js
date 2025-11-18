@@ -1,6 +1,7 @@
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
-let mode = 'remote' // 'remote' or 'local'
+let mode = 'remote'
+let token = null
 
 function localKey(k) {
   return `expense-tracker:${k}`
@@ -11,7 +12,7 @@ function readLocal(k) {
     const raw = localStorage.getItem(localKey(k))
     return raw ? JSON.parse(raw) : []
   } catch (e) {
-    return [e]
+    return []
   }
 }
 
@@ -22,98 +23,121 @@ function writeLocal(k, data) {
 async function probeApi() {
   try {
     const res = await fetch(`${API_BASE.replace(/\/$/, '')}/api/budgets/`, { method: 'GET' })
-    if (!res.ok) throw new Error('not-ok')
-    mode = 'remote'
+    mode = res.ok ? 'remote' : 'local'
   } catch (e) {
     mode = 'local'
   }
 }
 
-// Run probe at module load (best-effort)
 probeApi()
 
 async function request(path, options = {}) {
   if (mode === 'local') throw new Error('remote-unavailable')
 
-  const url = `${API_BASE.replace(/\/$/, '')}/${path.replace(/^\//, '')}`;
-  const headers = options.headers || {};
+  const url = `${API_BASE.replace(/\/$/, '')}/${path.replace(/^\//, '')}`
+  const headers = options.headers || {}
 
   if (!(options.body instanceof FormData)) {
-    headers['Content-Type'] = 'application/json';
+    headers['Content-Type'] = 'application/json'
   }
 
-  const res = await fetch(url, { ...options, headers, credentials: 'include' });
-  const text = await res.text();
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`
+  }
+
+  const res = await fetch(url, { ...options, headers, credentials: 'include' })
+  const text = await res.text()
   try {
-    const data = text ? JSON.parse(text) : null;
-    if (!res.ok) throw { status: res.status, data };
-    return data;
+    const data = text ? JSON.parse(text) : null
+    if (!res.ok) throw { status: res.status, data }
+    return data
   } catch (err) {
     if (err instanceof SyntaxError) {
-      if (!res.ok) throw { status: res.status, data: text };
-      return text;
+      if (!res.ok) throw { status: res.status, data: text }
+      return text
     }
-    throw err;
+    throw err
   }
 }
 
-// Budgets
-export async function getBudgets() {
-  if (mode === 'local') return readLocal('budgets')
+export async function login(username, password) {
   try {
-    return await request('/api/budgets/')
+    const data = await request('/api/token/', {
+      method: 'POST',
+      body: JSON.stringify({ username, password })
+    })
+    token = data.access
+    localStorage.setItem(localKey('token'), token)
+    return data
   } catch (e) {
-    // fallback to local
     mode = 'local'
-    return readLocal('budgets')
+    throw e
   }
 }
 
-export async function createBudget(payload) {
+export async function logout() {
+  token = null
+  localStorage.removeItem(localKey('token'))
+}
+
+export function setToken(t) {
+  token = t
+}
+
+export function getToken() {
+  return token || localStorage.getItem(localKey('token'))
+}
+
+async function list(endpoint) {
+  if (mode === 'local') return readLocal(endpoint)
+  try {
+    return await request(`/api/${endpoint}/`)
+  } catch (e) {
+    mode = 'local'
+    return readLocal(endpoint)
+  }
+}
+
+async function create(endpoint, payload) {
   if (mode === 'local') {
-    const items = readLocal('budgets')
+    const items = readLocal(endpoint)
     const nextId = items.length ? Math.max(...items.map(i => i.id)) + 1 : 1
     const item = { id: nextId, ...payload }
     items.unshift(item)
-    writeLocal('budgets', items)
+    writeLocal(endpoint, items)
     return item
   }
   try {
-    return await request('/api/budgets/', { method: 'POST', body: JSON.stringify(payload) })
+    return await request(`/api/${endpoint}/`, { method: 'POST', body: JSON.stringify(payload) })
   } catch (e) {
     mode = 'local'
-    return createBudget(payload)
+    return create(endpoint, payload)
   }
 }
 
-// Expenses
-export async function getExpenses() {
-  if (mode === 'local') return readLocal('expenses')
-  try {
-    return await request('/api/expenses/')
-  } catch (e) {
-    mode = 'local'
-    return readLocal('expenses')
-  }
-}
+export async function getIncomes() { return list('incomes') }
+export async function createIncome(payload) { return create('incomes', payload) }
 
-export async function createExpense(payload) {
-  if (mode === 'local') {
-    const items = readLocal('expenses')
-    const nextId = items.length ? Math.max(...items.map(i => i.id)) + 1 : 1
-    const item = { id: nextId, ...payload }
-    items.unshift(item)
-    writeLocal('expenses', items)
-    return item
-  }
-  try {
-    return await request('/api/expenses/', { method: 'POST', body: JSON.stringify(payload) })
-  } catch (e) {
-    mode = 'local'
-    return createExpense(payload)
-  }
-}
+export async function getExpenses() { return list('expenses') }
+export async function createExpense(payload) { return create('expenses', payload) }
+
+export async function getTransfers() { return list('transfers') }
+export async function createTransfer(payload) { return create('transfers', payload) }
+
+export async function getBudgets() { return list('budgets') }
+export async function createBudget(payload) { return create('budgets', payload) }
+
+export async function getRecurring() { return list('recurring') }
+export async function createRecurring(payload) { return create('recurring', payload) }
 
 export function isRemote() { return mode === 'remote' }
 
-export default { getBudgets, createBudget, getExpenses, createExpense, isRemote }
+export default {
+  login, logout, setToken, getToken,
+  getIncomes, createIncome,
+  getExpenses, createExpense,
+  getTransfers, createTransfer,
+  getBudgets, createBudget,
+  getRecurring, createRecurring,
+  isRemote
+}

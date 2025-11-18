@@ -1,30 +1,35 @@
-# Use official Python image
+# Build stage
 FROM python:3.12-slim
 
-# Install build tools and PostgreSQL client dev libraries
+WORKDIR /app
+
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
+    postgresql-client \
     gcc \
     libpq-dev \
     python3-dev \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-# Set work directory
-WORKDIR /app
-
 # Prevent .pyc files and enable unbuffered output
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-# Install dependencies
-COPY requirements.txt .
-RUN pip install --upgrade pip && pip install -r requirements.txt
+# Install Python dependencies
+COPY Pipfile Pipfile.lock ./
+RUN pip install --upgrade pip && \
+    pip install pipenv && \
+    pipenv install --system --deploy --ignore-pipfile
 
-# Copy project files
+# Copy project
 COPY . .
 
-# Collect static files
-RUN python manage.py collectstatic --noinput
+# Create staticfiles directory
+RUN mkdir -p /app/staticfiles
 
-# Run server
-CMD ["gunicorn", "Expense_Tracker.wsgi:application", "--bind", "0.0.0.0:8000"]
+# Expose port
+EXPOSE 8000
+
+# Run migrations and start server
+CMD ["sh", "-c", "python manage.py migrate && python manage.py collectstatic --noinput && gunicorn Expense_Tracker.wsgi:application --bind 0.0.0.0:8000"]

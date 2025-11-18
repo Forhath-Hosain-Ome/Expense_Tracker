@@ -1,6 +1,14 @@
 # Use official Python image
 FROM python:3.12-slim
 
+# Install build tools and PostgreSQL client dev libraries
+RUN apt-get update && apt-get install -y \
+    gcc \
+    libpq-dev \
+    python3-dev \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
 # Set work directory
 WORKDIR /app
 

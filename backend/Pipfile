@@ -5,10 +5,12 @@ name = "pypi"
 
 [packages]
 django = "*"
-pyproject = "*"
-psycopg2 = "*"
+djangorestframework = "*"
+django-cors-headers = "*"
+djangorestframework-simplejwt = "*"
+psycopg2-binary = "*"
 dj-database-url = "*"
-decouple = "*"
+whitenoise = "*"
 
 [dev-packages]
 

@@ -1,6 +1,5 @@
 from pathlib import Path
 import dj_database_url
-from decouple import config
 from datetime import timedelta
 import os
 
@@ -16,24 +15,21 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
-SECRET_KEY = config('SECRET_KEY')
+# Env config helper
+def env(key, default=''):
+    val = os.getenv(key, default)
+    return val if val is not None else default
+
+SECRET_KEY = env('SECRET_KEY', 'django-insecure-dev-key-change-in-production')
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG', default='False', cast=bool)
+DEBUG = env('DEBUG', 'False') == 'True'
 
-DEBUG = os.getenv('DEBUG', 'False') == 'True'
+CRYPTO_API_KEY = env('CRYPTO_API_KEY', '')
 
-CRYPTO_API_KEY = config('CRYPTO_API_KEY')
+ALLOWED_HOSTS = [s.strip() for s in env('ALLOWED_HOSTS', 'localhost').split(',')]
 
-ALLOWED_HOSTS = config(
-    'ALLOWED_HOSTS',
-    default='localhost',
-    cast=lambda v: [
-        s.strip() for s in v.split(',')
-        ]
-    )
-
-CORS_ALLOWED_ORIGINS = config('CORS_ALLOWED_ORIGINS', default='', cast=lambda v: [s.strip() for s in v.split(',')])
-CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', default='', cast=lambda v: [s.strip() for s in v.split(',')])
+CORS_ALLOWED_ORIGINS = [s.strip() for s in env('CORS_ALLOWED_ORIGINS', '').split(',') if s.strip()]
+CSRF_TRUSTED_ORIGINS = [s.strip() for s in env('CSRF_TRUSTED_ORIGINS', '').split(',') if s.strip()]
 
 # Example fallback
 if not CORS_ALLOWED_ORIGINS:
@@ -124,7 +120,7 @@ WSGI_APPLICATION = 'Expense_Tracker.wsgi.application'
 
 DATABASES = {
     'default': dj_database_url.config(
-        default=config('DATABASE_URL')
+        default=env('DATABASE_URL', 'sqlite:///db.sqlite3')
     )
 }
 
@@ -164,6 +160,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / "static"
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

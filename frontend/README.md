@@ -1,12 +1,41 @@
 # React + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Frontend (Expense Tracker)
 
-Currently, two official plugins are available:
+This frontend is a small Vite + React app that talks to the Django backend.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Quick start (development)
 
-## Expanding the ESLint configuration
+1. Install dependencies
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```bash
+cd frontend
+npm install
+```
+
+2. Create a `.env` file (copy `.env.example`)
+
+```bash
+cp .env.example .env
+# Edit .env if your backend runs at a different address
+```
+
+3. Run the dev server
+
+```bash
+npm run dev
+```
+
+Notes
+
+- The frontend expects a backend API at `VITE_API_URL` (default: `http://localhost:8000`).
+- Basic components exist for budgets and expenses in `src/components`.
+- Routes:
+	- `/` — budgets (list + create)
+	- `/expenses` — expenses (list + create)
+
+Next steps
+
+- Add authentication flows (Login/Register) and protected routes.
+- Improve forms with validation and better error handling.
+- Add tests and a CI workflow to lint and run tests on PRs.

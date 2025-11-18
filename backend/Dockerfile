@@ -28,12 +28,8 @@ COPY . .
 # Create staticfiles directory
 RUN mkdir -p /app/staticfiles
 
-# Copy and make entrypoint executable
-COPY entrypoint.sh /app/entrypoint.sh
-RUN chmod +x /app/entrypoint.sh
-
 # Expose port
 EXPOSE 8000
 
-# Run entrypoint
-ENTRYPOINT ["/app/entrypoint.sh"]
+# Wait for DB, then migrate, collect static, and run gunicorn
+CMD ["bash", "-c", "echo 'Waiting for database...' && while ! pg_isready -h db -U ${DB_USER:-postgres}; do sleep 1; done && echo 'Database ready!' && python manage.py migrate && python manage.py collectstatic --noinput && gunicorn Expense_Tracker.wsgi:application --bind 0.0.0.0:8000"]

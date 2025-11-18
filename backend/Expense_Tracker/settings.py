@@ -1,5 +1,4 @@
 from pathlib import Path
-import dj_database_url
 from datetime import timedelta
 import os
 
@@ -119,9 +118,14 @@ WSGI_APPLICATION = 'Expense_Tracker.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-    'default': dj_database_url.config(
-        default=env('DATABASE_URL', 'sqlite:///db.sqlite3')
-    )
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': env('DB_NAME', 'expense_tracker'),
+        'USER': env('DB_USER', 'postgres'),
+        'PASSWORD': env('DB_PASSWORD', 'postgres'),
+        'HOST': env('DB_HOST', 'db'),
+        'PORT': env('DB_PORT', '5432'),
+    }
 }
 
 

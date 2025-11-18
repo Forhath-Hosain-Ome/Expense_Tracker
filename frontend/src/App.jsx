@@ -24,26 +24,26 @@ import RecurringForm from './components/RecurringForm'
 
 function App() {
   return (
-    <BrowserRouter>
-      <div className="app-shell">
-        <header>
-          <h1>Expense Tracker</h1>
-        </header>
+    <>
+      <BrowserRouter>
+        <div className="container">
+          <Nav />
 
-        <Nav />
-
-        <main>
-          <Routes>
-            <Route path="/incomes" element={<><IncomeForm /><IncomeList /></>} />
-            <Route path="/expenses" element={<><ExpenseForm /><ExpenseList /></>} />
-            <Route path="/transfers" element={<><TransferForm /><TransferList /></>} />
-            <Route path="/budgets" element={<><BudgetForm /><BudgetList /></>} />
-            <Route path="/recurring" element={<><RecurringForm /><RecurringList /></>} />
-            <Route path="/" element={<h2>Welcome! Select a section from the menu.</h2>} />
-          </Routes>
-        </main>
-      </div>
-    </BrowserRouter>
+        </div>
+        <div className="app-shell">
+          <main>
+            <Routes>
+              <Route path="/incomes" element={<><IncomeForm /><IncomeList /></>} />
+              <Route path="/expenses" element={<><ExpenseForm /><ExpenseList /></>} />
+              <Route path="/transfers" element={<><TransferForm /><TransferList /></>} />
+              <Route path="/budgets" element={<><BudgetForm /><BudgetList /></>} />
+              <Route path="/recurring" element={<><RecurringForm /><RecurringList /></>} />
+              <Route path="/" element={<h2>Welcome! Select a section from the menu.</h2>} />
+            </Routes>
+          </main>
+        </div>
+      </BrowserRouter>
+    </>
   )
 }
 

@@ -25,17 +25,20 @@ export default function BudgetForm({ onCreated }) {
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div>
-        <label>Name</label>
-        <input value={name} onChange={(e) => setName(e.target.value)} required />
-      </div>
-      <div>
-        <label>Amount</label>
-        <input value={amount} onChange={(e) => setAmount(e.target.value)} required type="number" step="0.01" />
-      </div>
-      <button type="submit" disabled={loading}>{loading ? 'Creating...' : 'Create Budget'}</button>
-      {error && <div className="error">Error: {error}</div>}
-    </form>
+    <>
+    
+        <form onSubmit={handleSubmit}>
+        <div>
+            <label>Name</label>
+            <input value={name} onChange={(e) => setName(e.target.value)} required />
+        </div>
+        <div>
+            <label>Amount</label>
+            <input value={amount} onChange={(e) => setAmount(e.target.value)} required type="number" step="0.01" />
+        </div>
+        <button type="submit" disabled={loading}>{loading ? 'Creating...' : 'Create Budget'}</button>
+        {error && <div className="error">Error: {error}</div>}
+        </form>
+    </>
   )
 }
